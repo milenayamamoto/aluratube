@@ -1,9 +1,13 @@
-import config from '../config.json'
 import styled from 'styled-components'
+import Image from 'next/image'
+
+import config from '../config.json'
 import { CSSReset } from '../src/components/CSSReset'
 
 import Menu from '../src/components/Menu'
 import { StyledTimeline } from '../src/components/Timeline'
+
+import banner from '../src/assets/banner.jpg'
 
 function HomePage() {
 	return (
@@ -18,7 +22,7 @@ function HomePage() {
 			>
 				<Menu />
 				<Header />
-				<Timeline playlists={config.playlists} />
+				<Timeline playlists={config.playlists} favorites={config.favorites} />
 			</div>
 		</>
 	)
@@ -33,19 +37,30 @@ const StyledHeader = styled.div`
 		border-radius: 50%;
 	}
 	.user-info {
-		margin-top: 50px;
 		display: flex;
 		align-items: center;
 		width: 100%;
 		padding: 16px 32px;
 		gap: 16px;
 	}
+	.banner {
+		border-radius: 0;
+	}
 `
 
 function Header() {
 	return (
 		<StyledHeader>
-			{/* <img src='banner' /> */}
+			<div style={{ marginTop: '56px', position: 'relative' }}>
+				<Image
+					src={banner}
+					alt='imagem mostrando a tela de um computador'
+					width='1512'
+					height='230'
+					objectFit='cover'
+					className='banner'
+				/>
+			</div>
 
 			<section className='user-info'>
 				<img src={`https://github.com/${config.github}.png`} />
@@ -61,6 +76,7 @@ function Header() {
 function Timeline(props) {
 	const playlistNames = Object.keys(props.playlists)
 
+	console.log({ props })
 	return (
 		<StyledTimeline>
 			{playlistNames.map((playlistName) => {
@@ -68,7 +84,7 @@ function Timeline(props) {
 
 				return (
 					<section>
-						<h2>{playlistName.name}</h2>
+						<h2>{playlistName}</h2>
 						<div>
 							{videos.map((video) => {
 								return (
@@ -82,6 +98,33 @@ function Timeline(props) {
 					</section>
 				)
 			})}
+			<div style={{ marginTop: '28px', marginBottom: '16px' }}>
+				<h2>AluraTubes Favoritos</h2>
+				<div style={{ display: 'flex', gap: '8px' }}>
+					{props.favorites &&
+						props.favorites?.map((favorite) => {
+							return (
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										alignItems: 'center',
+									}}
+								>
+									<img
+										src={`https://github.com/${favorite}.png`}
+										style={{
+											width: '100px',
+											height: '100px',
+											borderRadius: '50%',
+										}}
+									/>
+									<p style={{ marginTop: '8px' }}>@{favorite}</p>
+								</div>
+							)
+						})}
+				</div>
+			</div>
 		</StyledTimeline>
 	)
 }
