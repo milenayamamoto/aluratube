@@ -1,5 +1,5 @@
+import React from 'react'
 import styled from 'styled-components'
-import Image from 'next/image'
 
 import config from '../config.json'
 import { CSSReset } from '../src/components/CSSReset'
@@ -7,9 +7,9 @@ import { CSSReset } from '../src/components/CSSReset'
 import Menu from '../src/components/Menu'
 import { StyledTimeline } from '../src/components/Timeline'
 
-import banner from '../src/assets/banner.jpg'
-
 function HomePage() {
+	const [searchValue, setSearchValue] = React.useState('')
+
 	return (
 		<>
 			<CSSReset />
@@ -20,9 +20,13 @@ function HomePage() {
 					flex: 1,
 				}}
 			>
-				<Menu />
+				<Menu searchValue={searchValue} setSearchValue={setSearchValue} />
 				<Header />
-				<Timeline playlists={config.playlists} favorites={config.favorites} />
+				<Timeline
+					searchValue={searchValue}
+					playlists={config.playlists}
+					favorites={config.favorites}
+				/>
 			</div>
 		</>
 	)
@@ -48,19 +52,15 @@ const StyledHeader = styled.div`
 	}
 `
 
+const StyledBanner = styled.div`
+	background-image: url(${({ bg }) => bg});
+	height: 230px;
+`
+
 function Header() {
 	return (
 		<StyledHeader>
-			<div style={{ marginTop: '56px', position: 'relative' }}>
-				<Image
-					src={banner}
-					alt='imagem mostrando a tela de um computador'
-					width='1512'
-					height='230'
-					objectFit='cover'
-					className='banner'
-				/>
-			</div>
+			<StyledBanner bg={config.background} />
 
 			<section className='user-info'>
 				<img src={`https://github.com/${config.github}.png`} />
@@ -73,27 +73,33 @@ function Header() {
 	)
 }
 
-function Timeline(props) {
+function Timeline({ searchValue, ...props }) {
 	const playlistNames = Object.keys(props.playlists)
 
-	console.log({ props })
 	return (
 		<StyledTimeline>
 			{playlistNames.map((playlistName) => {
 				const videos = props.playlists[playlistName]
 
 				return (
-					<section>
+					<section key={playlistName}>
 						<h2>{playlistName}</h2>
 						<div>
-							{videos.map((video) => {
-								return (
-									<a href={video.url}>
-										<img src={video.thumb} />
-										<span>{video.title}</span>
-									</a>
-								)
-							})}
+							{videos
+								.filter((video) => {
+									const titleNormalized = video.title.toLowerCase()
+									const searchValueNormalized = searchValue.toLowerCase()
+
+									return titleNormalized.includes(searchValueNormalized)
+								})
+								.map((video) => {
+									return (
+										<a href={video.url} key={video.url}>
+											<img src={video.thumb} />
+											<span>{video.title}</span>
+										</a>
+									)
+								})}
 						</div>
 					</section>
 				)
@@ -110,6 +116,7 @@ function Timeline(props) {
 										flexDirection: 'column',
 										alignItems: 'center',
 									}}
+									key={favorite}
 								>
 									<img
 										src={`https://github.com/${favorite}.png`}
