@@ -30,7 +30,7 @@ export const StyledTimeline = styled.div`
 			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 			grid-auto-flow: column;
 			grid-auto-columns: minmax(200px, 1fr);
-			overflow-x: scroll;
+			overflow-x: hidden;
 			scroll-snap-type: x mandatory;
 			a {
 				scroll-snap-align: start;
@@ -39,6 +39,28 @@ export const StyledTimeline = styled.div`
 					display: block;
 					padding-right: 24px;
 					color: ${({ theme }) => theme.textColorBase || '#222222'};
+				}
+			}
+		}
+	}
+	.favorites {
+		margin-top: 28px;
+		margin-bottom: 16px;
+		div {
+			display: flex;
+			gap: 8px;
+			a {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				color: ${({ theme }) => theme.textColorBase || '#222222'};
+				img {
+					width: 100px;
+					height: 100px;
+					border-radius: 50%;
+				}
+				p {
+					margin-top: 8px;
 				}
 			}
 		}

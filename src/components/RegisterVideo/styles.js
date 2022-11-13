@@ -33,6 +33,10 @@ export const StyledRegisterVideo = styled.div`
 		border-radius: 2px;
 		cursor: pointer;
 		color: inherit;
+		:disabled {
+			background-color: #cccccc;
+			cursor: not-allowed;
+		}
 	}
 	form {
 		width: 100%;

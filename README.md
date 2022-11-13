@@ -1,18 +1,13 @@
 # Aluratube
 
-🚧 Em construção 🚧
-
 O Aluratube é um projeto realizado durante a imersão React disponível pela Alura.
 
-### Ajustes e melhorias
+### Features
 
-O projeto ainda está em desenvolvimento, juntamente com a Imersão React, disponível pela Alura:
+- [x] Conexão com Supabase
+- [x] Dark/Light theme
+- [x] Barra de pesquisa
 
-- [x] Aula 1
-- [x] Aula 2
-- [x] Aula 3
-- [x] Aula 4
-- [ ] Aula 5
 
 ## 🚀 Instalando o Aluratube
 

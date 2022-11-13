@@ -1,13 +1,27 @@
 import React from 'react'
-import styled from 'styled-components'
-
 import config from '../config.json'
+import styled from 'styled-components'
 
 import Menu from '../src/components/Menu'
 import { StyledTimeline } from '../src/components/Timeline'
+import { videoService } from '../src/services/videoService'
 
 function HomePage() {
+	const service = videoService()
 	const [searchValue, setSearchValue] = React.useState('')
+	const [playlists, setPlaylists] = React.useState({})
+
+	React.useEffect(() => {
+		service.getAllVideos().then((res) => {
+			const newPlaylists = {}
+
+			res.data?.forEach((video) => {
+				if (!newPlaylists[video.playlist]) newPlaylists[video.playlist] = []
+				newPlaylists[video.playlist] = [video, ...newPlaylists[video.playlist]]
+			})
+			setPlaylists(newPlaylists)
+		})
+	}, [])
 
 	return (
 		<>
@@ -22,7 +36,7 @@ function HomePage() {
 				<Header />
 				<Timeline
 					searchValue={searchValue}
-					playlists={config.playlists}
+					playlists={playlists}
 					favorites={config.favorites}
 				/>
 			</div>
@@ -93,7 +107,7 @@ function Timeline({ searchValue, ...props }) {
 								})
 								.map((video) => {
 									return (
-										<a href={video.url} key={video.url}>
+										<a href={video.url} key={video.url} target='_blank'>
 											<img src={video.thumb} />
 											<span>{video.title}</span>
 										</a>
@@ -103,30 +117,20 @@ function Timeline({ searchValue, ...props }) {
 					</section>
 				)
 			})}
-			<div style={{ marginTop: '28px', marginBottom: '16px' }}>
+			<div className='favorites'>
 				<h2>AluraTubes Favoritos</h2>
-				<div style={{ display: 'flex', gap: '8px' }}>
+				<div>
 					{props.favorites &&
 						props.favorites?.map((favorite) => {
 							return (
-								<div
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										alignItems: 'center',
-									}}
+								<a
 									key={favorite}
+									href={`https://github.com/${favorite}`}
+									target='_blank'
 								>
-									<img
-										src={`https://github.com/${favorite}.png`}
-										style={{
-											width: '100px',
-											height: '100px',
-											borderRadius: '50%',
-										}}
-									/>
-									<p style={{ marginTop: '8px' }}>@{favorite}</p>
-								</div>
+									<img src={`https://github.com/${favorite}.png`} />
+									<p>@{favorite}</p>
+								</a>
 							)
 						})}
 				</div>

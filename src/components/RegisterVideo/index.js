@@ -1,12 +1,18 @@
 import React from 'react'
+import { useRouter } from 'next/router'
 import { StyledRegisterVideo } from './styles'
+import { videoService } from '../../../src/services/videoService'
 
 function useForm(props) {
-	const [values, setValues] = React.useState(props.initialValues)
+	const [values, setValues] = React.useState(props.initialValues.values)
 	const [formErrors, setFormErrors] = React.useState(props.initialValues.errors)
 
 	const matchYoutubeUrl =
 		/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/
+
+	const isFormValid =
+		Object.keys(formErrors).every((key) => formErrors[key] === '') &&
+		Object.keys(values).every((key) => values[key] !== '')
 
 	const handleValidation = (name, value) => {
 		if (name === 'title') {
@@ -33,6 +39,7 @@ function useForm(props) {
 	return {
 		values,
 		formErrors,
+		isFormValid,
 		handleChange: (e) => {
 			setValues({ ...values, [e.target.name]: e.target.value })
 			handleValidation(e.target.name, e.target.value)
@@ -40,18 +47,23 @@ function useForm(props) {
 		clearForm() {
 			setValues({})
 		},
-		getThumb: (videoUrl) => {
-			const thumb = videoUrl?.split('?')[1]?.split('=')[1]
-			return `https://img.youtube.com/vi/${thumb}/hqdefault.jpg`
-		},
 	}
 }
 
+function getThumbnail(url) {
+	return `https://img.youtube.com/vi/${url.split('v=')[1]}/hqdefault.jpg`
+}
+
 export default function RegisterVideo() {
+	const router = useRouter()
+	const service = videoService()
+
 	const formSignUp = useForm({
 		initialValues: {
-			title: 'Frostpunk',
-			url: 'https://www.youtube.com/watch?v=QsqatJxAUtk',
+			values: {
+				title: '',
+				url: '',
+			},
 			errors: {
 				title: '',
 				url: '',
@@ -59,8 +71,6 @@ export default function RegisterVideo() {
 		},
 	})
 	const [formVisible, setFormVisible] = React.useState(false)
-
-	const thumbnail = formSignUp.getThumb(formSignUp?.values?.url)
 
 	return (
 		<StyledRegisterVideo>
@@ -71,6 +81,22 @@ export default function RegisterVideo() {
 				<form
 					onSubmit={(e) => {
 						e.preventDefault()
+
+						service
+							.addVideo()
+							.insert({
+								title: formSignUp.values.title,
+								url: formSignUp.values.url,
+								thumb: getThumbnail(formSignUp.values.url),
+								playlist: 'jogos',
+							})
+							.then((res) => {
+								console.log({ res })
+							})
+							.catch((err) => {
+								console.log(err)
+							})
+							.finally(setTimeout(() => router.reload(), 2000))
 						setFormVisible(false)
 						formSignUp.clearForm()
 					}}
@@ -109,15 +135,19 @@ export default function RegisterVideo() {
 								{formSignUp.formErrors.url}
 							</span>
 						)}
-						{thumbnail && (
+						{formSignUp?.values?.url && (
 							<>
 								<h3 style={{ marginTop: '16px', marginBottom: '8px' }}>
 									Thumbnail
 								</h3>
-								<img src={thumbnail} style={{}} />
+								<img src={getThumbnail(formSignUp.values.url)} style={{}} />
 							</>
 						)}
-						<button type='submit' style={{ marginTop: '16px' }}>
+						<button
+							type='submit'
+							disabled={!formSignUp.isFormValid}
+							style={{ marginTop: '16px' }}
+						>
 							Adicionar
 						</button>
 					</div>
